@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 港交所POC系统
 
 ## 部署脚本说明
@@ -83,3 +84,6 @@ bash backup.sh
 - [部署指南](DEPLOYMENT_GUIDE.md) - 详细的部署说明
 - [快速开始](QUICK_START.md) - 快速上手指南
 - [后端集成指南](BACKEND_INTEGRATION_GUIDE.md) - 后端系统集成说明 
+=======
+# POC-System
+>>>>>>> 4a673f7258e2bdf2c5f15796fb8a2793e888ade9
