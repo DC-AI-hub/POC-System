@@ -1,0 +1,125 @@
+services:
+  # Next.js 应用
+  app:
+    build:
+      context: ./fronted
+      dockerfile: Dockerfile
+    container_name: hkex-poc-app
+    restart: unless-stopped
+    ports:
+      - "5137:5137"
+    environment:
+      - NODE_ENV=production
+      - PORT=5137
+      - NEXT_PUBLIC_APP_URL=http://localhost:5137
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:5137/api
+    volumes:
+      - ./logs/app:/app/logs
+      - ./uploads:/app/uploads
+      - ./app/.env.local:/app/.env.local:ro
+    networks:
+      - hkex-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5137/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: hkex-poc-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:5137"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./uploads:/var/www/uploads:ro
+    networks:
+      - hkex-network
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5137/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: hkex-poc-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=hkex_poc
+      - POSTGRES_USER=hkex_user
+      - POSTGRES_PASSWORD=hkex_password_2024
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./logs/postgres:/var/log/postgresql
+    networks:
+      - hkex-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hkex_user -d hkex_poc"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: hkex-poc-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redis_password_2024
+    volumes:
+      - redis_data:/data
+      - ./logs/redis:/var/log/redis
+    networks:
+      - hkex-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 监控服务 (可选)
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: hkex-poc-monitoring
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - hkex-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  hkex-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 
