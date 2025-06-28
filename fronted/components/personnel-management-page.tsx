@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,34 +43,63 @@ import {
   employeeStatusOptions,
   batchOperationOptions 
 } from "@/lib/validations/personnel-management";
+// 分页组件将通过简单的按钮实现
 
-// 部门选项
+// 部门选项 - 与数据库实际部门保持一致
 const departmentOptions = [
   { value: "all", label: "全部部门" },
+  { value: "信息技术部", label: "信息技术部" },
   { value: "财务部", label: "财务部" },
-  { value: "技术部", label: "技术部" },
-  { value: "人事部", label: "人事部" },
-  { value: "市场部", label: "市场部" },
+  { value: "人力资源部", label: "人力资源部" },
+  { value: "交易部", label: "交易部" },
+  { value: "风控部", label: "风控部" },
+  { value: "合规部", label: "合规部" },
+  { value: "客户服务部", label: "客户服务部" },
   { value: "运营部", label: "运营部" },
 ];
 
-// 职位选项
+// 职位选项 - 与数据库实际职位保持一致
 const positionOptions = [
   { value: "all", label: "全部职位" },
-  { value: "经理", label: "经理" },
-  { value: "总监", label: "总监" },
-  { value: "专员", label: "专员" },
-  { value: "工程师", label: "工程师" },
-  { value: "主管", label: "主管" },
+  { value: "系统管理员", label: "系统管理员" },
+  { value: "高级软件工程师", label: "高级软件工程师" },
+  { value: "数据库管理员", label: "数据库管理员" },
+  { value: "系统架构师", label: "系统架构师" },
+  { value: "前端开发", label: "前端开发" },
+  { value: "会计师", label: "会计师" },
+  { value: "高级会计师", label: "高级会计师" },
+  { value: "出纳员", label: "出纳员" },
+  { value: "财务分析师", label: "财务分析师" },
+  { value: "会计助理", label: "会计助理" },
+  { value: "HR专员", label: "HR专员" },
+  { value: "人力资源总监", label: "人力资源总监" },
+  { value: "招聘专员", label: "招聘专员" },
+  { value: "薪酬专员", label: "薪酬专员" },
+  { value: "交易总监", label: "交易总监" },
+  { value: "高级交易员", label: "高级交易员" },
+  { value: "交易员", label: "交易员" },
+  { value: "风控经理", label: "风控经理" },
+  { value: "风控专员", label: "风控专员" },
+  { value: "风险分析师", label: "风险分析师" },
+  { value: "合规总监", label: "合规总监" },
+  { value: "合规专员", label: "合规专员" },
+  { value: "法务专员", label: "法务专员" },
+  { value: "客服总监", label: "客服总监" },
+  { value: "高级客服", label: "高级客服" },
+  { value: "客服专员", label: "客服专员" },
+  { value: "运营总监", label: "运营总监" },
+  { value: "运营专员", label: "运营专员" },
+  { value: "业务运营", label: "业务运营" },
 ];
 
-// 主管选项
+// 主管选项 - 精简版
 const managerOptions = [
   { value: "all", label: "全部主管" },
   { value: "李总监", label: "李总监" },
-  { value: "王总监", label: "王总监" },
-  { value: "赵经理", label: "赵经理" },
+  { value: "魏主管", label: "魏主管" },
+  { value: "钟总监", label: "钟总监" },
   { value: "CEO", label: "CEO" },
+  { value: "CTO", label: "CTO" },
 ];
 
 export function PersonnelManagementPage() {
@@ -126,6 +155,22 @@ export function PersonnelManagementPage() {
   const [batchOperation, setBatchOperation] = useState<string>("");
   const [batchValue, setBatchValue] = useState<string>("");
 
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // 计算分页数据
+  const totalItems = filteredPersonnel.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const currentPageData = filteredPersonnel.slice(startIndex, endIndex);
+
+  // 重置分页当筛选条件改变时
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filters]);
+
   // 检查是否有活动的过滤条件
   const hasActiveFilters = useMemo(() => {
     return Boolean(
@@ -144,7 +189,7 @@ export function PersonnelManagementPage() {
       active: { status: "approved" as const, label: "在职" },
       inactive: { status: "rejected" as const, label: "离职" },
       transferred: { status: "in-progress" as const, label: "调动" },
-      resigned: { status: "pending" as const, label: "辞职" },
+      resigned: { status: "draft" as const, label: "辞职" },
     };
     
     const config = statusMap[status];
@@ -414,8 +459,8 @@ export function PersonnelManagementPage() {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={
-                        filteredPersonnel.length > 0 &&
-                        filteredPersonnel.every((person) => selectedPersonnel.has(person.id))
+                        currentPageData.length > 0 &&
+                        currentPageData.every((person) => selectedPersonnel.has(person.id))
                       }
                       onCheckedChange={(checked) => selectAll(!!checked)}
                     />
@@ -442,14 +487,14 @@ export function PersonnelManagementPage() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : filteredPersonnel.length === 0 ? (
+                ) : currentPageData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="text-center py-8 text-gray-500">
                       {hasActiveFilters ? "没有找到符合条件的员工" : "暂无员工数据"}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredPersonnel.map((person) => (
+                  currentPageData.map((person) => (
                     <TableRow key={person.id} className="hover:bg-gray-50">
                       <TableCell>
                         <Checkbox
@@ -504,6 +549,100 @@ export function PersonnelManagementPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* 分页控件 */}
+          {filteredPersonnel.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-4 border-t">
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <span>
+                  显示第 {startIndex + 1} - {Math.min(endIndex, totalItems)} 条，共 {totalItems} 条记录
+                </span>
+                <div className="flex items-center gap-2">
+                  <span>每页显示:</span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={(value) => {
+                      setPageSize(Number(value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span>条</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage <= 1}
+                >
+                  上一页
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {/* 页码按钮 */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNumber}
+                        variant={pageNumber === currentPage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNumber}
+                      </Button>
+                    );
+                  })}
+                  
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <>
+                      <span className="px-2">...</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(totalPages)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {totalPages}
+                      </Button>
+                    </>
+                  )}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage >= totalPages}
+                >
+                  下一页
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -521,6 +660,8 @@ export function PersonnelManagementPage() {
           const formData = {
             ...data,
             notes: data.notes || "",
+            emergencyContact: data.emergencyContact || "",
+            emergencyPhone: data.emergencyPhone || "",
           };
           if (editingPersonnel) {
             await updatePersonnel(editingPersonnel.id, formData);
@@ -639,14 +780,14 @@ export function PersonnelManagementPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="text-sm text-gray-600">
-              支持 Excel (.xlsx) 和 CSV (.csv) 格式
+              支持 CSV (.csv) 格式，请先下载模板文件
             </div>
             
             <div className="space-y-2">
               <Label>选择文件</Label>
               <Input
                 type="file"
-                accept=".xlsx,.csv"
+                accept=".csv"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
@@ -678,10 +819,10 @@ export function PersonnelManagementPage() {
                 取消
               </Button>
               <Button variant="outline" onClick={() => {
-                // 下载模板
+                // 下载CSV模板
                 const link = document.createElement('a');
-                link.href = '/templates/personnel-template.xlsx';
-                link.download = '员工信息导入模板.xlsx';
+                link.href = '/templates/personnel-template.csv';
+                link.download = '员工信息导入模板.csv';
                 link.click();
               }}>
                 下载模板

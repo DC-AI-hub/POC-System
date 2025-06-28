@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import type { PageType } from "@/app/page"
-import { FileText, Users, Plane, Settings, BarChart3, CreditCard, Building, UserCircle, GitBranch, CheckSquare, TrendingUp, Workflow, Shield, LogOut, User } from "lucide-react"
+import { FileText, Users, Plane, Settings, BarChart3, CreditCard, Building, UserCircle, GitBranch, CheckSquare, TrendingUp, Workflow, Shield, LogOut, User, Database } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 
@@ -31,6 +31,7 @@ const menuItems = [
   { id: "system-config" as PageType, label: "系统配置管理", icon: Settings },
   { id: "report-analytics" as PageType, label: "报表分析", icon: TrendingUp },
   { id: "integration-management" as PageType, label: "系统集成管理", icon: Workflow },
+  { id: "database-test" as PageType, label: "数据库连接测试", icon: Database },
 ]
 
 const otherMenuItems = [

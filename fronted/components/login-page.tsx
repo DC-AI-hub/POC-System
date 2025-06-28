@@ -99,19 +99,40 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setErrors({})
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // 调用后端JWT认证API
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          rememberMe: formData.rememberMe
+        })
+      })
 
-      // Simulate authentication logic
-      if (formData.email === "demo@example.com" && formData.password === "password") {
-        console.log("✅ Login successful", formData)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || '登录失败')
+      }
+
+      const result = await response.json()
+      
+      if (result.code === 200 && result.data) {
+        // 保存JWT Token到localStorage
+        localStorage.setItem('jwt_token', result.data.token)
+        localStorage.setItem('refresh_token', result.data.refreshToken)
+        localStorage.setItem('user_info', JSON.stringify(result.data.userInfo))
+        
+        console.log("✅ Login successful", result.data)
         onLogin()
       } else {
-        setErrors({ general: t.login.loginFailed })
+        setErrors({ general: result.message || '登录失败' })
       }
     } catch (error) {
       console.error("❌ Login error:", error)
-              setErrors({ general: t.login.loginError })
+      setErrors({ general: error instanceof Error ? error.message : t.login.loginError })
     } finally {
       setIsLoading(false)
     }
