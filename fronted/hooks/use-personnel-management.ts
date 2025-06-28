@@ -165,12 +165,166 @@ const mockDepartments: Department[] = [
   },
 ];
 
+// 添加API调用函数
+const API_BASE = 'http://localhost:8080/api';
+
+// 通用API调用函数，自动携带JWT Token
+const apiCall = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  const token = localStorage.getItem('jwt_token');
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> || {}),
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+  
+  // 如果返回401，可能是token过期，尝试刷新
+  if (response.status === 401) {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (refreshToken) {
+      try {
+        const refreshResponse = await fetch(`${API_BASE}/auth/refresh?refreshToken=${encodeURIComponent(refreshToken)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (refreshResponse.ok) {
+          const refreshResult = await refreshResponse.json();
+          localStorage.setItem('jwt_token', refreshResult.data.token);
+          
+          // 重新发起原请求
+          headers['Authorization'] = `Bearer ${refreshResult.data.token}`;
+          return fetch(url, { ...options, headers });
+        }
+      } catch (error) {
+        console.error('Token刷新失败:', error);
+      }
+    }
+    
+    // 如果刷新失败，清除本地存储并跳转到登录页
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_info');
+    window.location.reload();
+  }
+  
+  return response;
+};
+
+// 数据映射函数
+const mapUserTypeToEmployeeType = (userType: string): PersonnelInfo["employeeType"] => {
+  switch (userType) {
+    case '主管':
+    case '经理':
+    case '总监':
+    case '正式员工':
+    case '员工':
+      return 'full-time';
+    case '兼职':
+    case '兼职员工':
+      return 'part-time';
+    case '合同工':
+      return 'contractor';
+    default:
+      return 'full-time';
+  }
+};
+
+const mapStatusToFrontend = (status: string): PersonnelInfo["status"] => {
+  switch (status) {
+    case '在职':
+      return 'active';
+    case '离职':
+      return 'inactive';
+    case '调动':
+      return 'transferred';
+    case '辞职':
+      return 'resigned';
+    default:
+      return 'active';
+  }
+};
+
+const mapEmployeeTypeToBackend = (employeeType: PersonnelInfo["employeeType"]): string => {
+  switch (employeeType) {
+    case 'full-time':
+      return '正式员工';
+    case 'part-time':
+      return '兼职员工';
+    case 'contractor':
+      return '合同工';
+    default:
+      return '正式员工';
+  }
+};
+
+const mapStatusToBackend = (status: PersonnelInfo["status"]): string => {
+  switch (status) {
+    case 'active':
+      return '在职';
+    case 'inactive':
+      return '离职';
+    case 'transferred':
+      return '调动';
+    case 'resigned':
+      return '辞职';
+    default:
+      return '在职';
+  }
+};
+
+// 获取所有用户
+const fetchPersonnel = async (): Promise<PersonnelInfo[]> => {
+  const response = await apiCall(`${API_BASE}/users?size=100`);
+  if (!response.ok) {
+    throw new Error('获取用户列表失败');
+  }
+  const result = await response.json();
+  
+  // 检查响应数据结构
+  if (!result.data || !result.data.content) {
+    console.error('API响应格式错误:', result);
+    return [];
+  }
+  
+  // 转换后端数据格式到前端格式
+  return result.data.content.map((user: any) => ({
+    id: user.id.toString(),
+    name: user.userName,
+    loginName: user.employeeId,
+    employeeId: user.employeeId,
+    department: user.department || '未指定',
+    position: user.position || '未指定',
+    manager: user.manager || '',
+    phone: user.phone || '',
+    email: user.email || '',
+    employeeType: mapUserTypeToEmployeeType(user.userType),
+    status: mapStatusToFrontend(user.status),
+    hireDate: user.hireDate ? new Date(user.hireDate) : new Date(),
+    lastModified: user.updatedTime ? new Date(user.updatedTime) : new Date(),
+    workLocation: user.workLocation || '',
+    emergencyContact: user.emergencyContact || '',
+    emergencyPhone: user.emergencyPhone || '',
+    notes: user.notes || '',
+  }));
+};
+
 export function usePersonnelManagement(): UsePersonnelManagementReturn {
   // Toast hook
   const { toast } = useToast();
 
   // 基础状态
-  const [personnel, setPersonnel] = useState<PersonnelInfo[]>(mockPersonnel);
+  const [personnel, setPersonnel] = useState<PersonnelInfo[]>([]);
   const [departments, setDepartments] = useState<Department[]>(mockDepartments);
   const [selectedPersonnel, setSelectedPersonnel] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -190,6 +344,29 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
 
   // 防抖搜索
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // 初始化加载数据
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchPersonnel();
+        setPersonnel(data);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "加载数据失败";
+        setError(errorMessage);
+        toast({
+          title: "加载失败",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [toast]);
 
   // 过滤后的人员数据
   const filteredPersonnel = useMemo(() => {
@@ -342,15 +519,37 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 调用后端API创建用户
+      const response = await apiCall(`${API_BASE}/users`, {
+        method: 'POST',
+        body: JSON.stringify({
+          employeeId: data.employeeId,
+          userName: data.name,
+          email: data.email,
+          phone: data.phone,
+          department: data.department,
+          position: data.position,
+          userType: mapEmployeeTypeToBackend(data.employeeType),
+          status: mapStatusToBackend(data.status),
+          hireDate: data.hireDate?.toISOString(),
+          manager: data.manager,
+          workLocation: data.workLocation,
+          emergencyContact: data.emergencyContact,
+          emergencyPhone: data.emergencyPhone,
+          notes: data.notes,
+        }),
+      });
 
-      const newPerson: PersonnelInfo = {
-        id: Date.now().toString(),
-        ...data,
-        lastModified: new Date(),
-      };
+      if (!response.ok) {
+        throw new Error('创建用户失败');
+      }
 
-      setPersonnel((prev) => [...prev, newPerson]);
+      const result = await response.json();
+      
+      // 重新加载数据以确保同步
+      const updatedData = await fetchPersonnel();
+      setPersonnel(updatedData);
+
       toast({
         title: "创建成功",
         description: "员工信息创建成功",
@@ -373,15 +572,41 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      console.log('更新用户数据:', { id, data }); // 调试日志
+      
+      // 调用后端API更新用户
+      const response = await apiCall(`${API_BASE}/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          employeeId: data.employeeId,
+          userName: data.name,
+          email: data.email,
+          phone: data.phone,
+          department: data.department,
+          position: data.position,
+          userType: mapEmployeeTypeToBackend(data.employeeType || 'full-time'),
+          status: mapStatusToBackend(data.status || 'active'),
+          hireDate: data.hireDate?.toISOString(),
+          manager: data.manager,
+          workLocation: data.workLocation,
+          emergencyContact: data.emergencyContact,
+          emergencyPhone: data.emergencyPhone,
+          notes: data.notes,
+        }),
+      });
 
-      setPersonnel((prev) =>
-        prev.map((person) =>
-          person.id === id
-            ? { ...person, ...data, lastModified: new Date() }
-            : person
-        )
-      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('更新用户失败响应:', errorText);
+        throw new Error(`更新用户失败: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('更新用户成功响应:', result);
+
+      // 重新加载数据以确保同步
+      const updatedData = await fetchPersonnel();
+      setPersonnel(updatedData);
 
       toast({
         title: "更新成功",
@@ -389,6 +614,7 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "更新失败";
+      console.error('更新用户错误:', err);
       setError(errorMessage);
       toast({
         title: "更新失败",
@@ -405,9 +631,19 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // 调用后端API删除用户
+      const response = await apiCall(`${API_BASE}/users/${id}`, {
+        method: 'DELETE',
+      });
 
-      setPersonnel((prev) => prev.filter((person) => person.id !== id));
+      if (!response.ok) {
+        throw new Error('删除用户失败');
+      }
+
+      // 重新加载数据以确保同步
+      const updatedData = await fetchPersonnel();
+      setPersonnel(updatedData);
+      
       setSelectedPersonnel((prev) => {
         const newSet = new Set(prev);
         newSet.delete(id);
@@ -437,32 +673,45 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
       const { type, targetIds, value } = operation;
+      
+      // 批量更新每个用户
+      const updatePromises = targetIds.map(async (id) => {
+        const user = personnel.find(p => p.id === id);
+        if (!user) return;
 
-      setPersonnel((prev) =>
-        prev.map((person) => {
-          if (targetIds.includes(person.id)) {
-            const updatedPerson = { ...person, lastModified: new Date() };
-            
-            switch (type) {
-              case "department":
-                updatedPerson.department = value || "";
-                break;
-              case "status":
-                updatedPerson.status = value as PersonnelInfo["status"];
-                break;
-              case "manager":
-                updatedPerson.manager = value || "";
-                break;
-            }
-            
-            return updatedPerson;
-          }
-          return person;
-        })
-      );
+        const updateData: any = {
+          employeeId: user.employeeId,
+          userName: user.name,
+          email: user.email,
+          phone: user.phone,
+          department: type === 'department' ? value : user.department,
+          position: user.position,
+          userType: mapEmployeeTypeToBackend(user.employeeType),
+          status: type === 'status' ? mapStatusToBackend(value as PersonnelInfo["status"]) : mapStatusToBackend(user.status),
+          hireDate: user.hireDate?.toISOString(),
+          manager: type === 'manager' ? value : user.manager,
+          workLocation: user.workLocation,
+          emergencyContact: user.emergencyContact,
+          emergencyPhone: user.emergencyPhone,
+          notes: user.notes,
+        };
+
+        const response = await apiCall(`${API_BASE}/users/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(updateData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`更新用户 ${user.name} 失败`);
+        }
+      });
+
+      await Promise.all(updatePromises);
+
+      // 重新加载数据以确保同步
+      const updatedData = await fetchPersonnel();
+      setPersonnel(updatedData);
 
       clearSelection();
       toast({
@@ -480,16 +729,30 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
     } finally {
       setLoading(false);
     }
-  }, [clearSelection, toast]);
+  }, [personnel, clearSelection, toast]);
 
   const batchDelete = useCallback(async (ids: string[]) => {
     setLoading(true);
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 批量删除每个用户
+      const deletePromises = ids.map(async (id) => {
+        const response = await apiCall(`${API_BASE}/users/${id}`, {
+          method: 'DELETE',
+        });
 
-      setPersonnel((prev) => prev.filter((person) => !ids.includes(person.id)));
+        if (!response.ok) {
+          throw new Error(`删除用户失败: ${id}`);
+        }
+      });
+
+      await Promise.all(deletePromises);
+
+      // 重新加载数据以确保同步
+      const updatedData = await fetchPersonnel();
+      setPersonnel(updatedData);
+      
       clearSelection();
 
       toast({
@@ -515,36 +778,58 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
     setError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // 创建FormData对象
+      const formData = new FormData();
+      formData.append('file', file);
 
-      // 模拟导入结果
-      const mockResult: ImportResult = {
-        success: true,
-        totalRecords: 10,
-        successCount: 8,
-        errorCount: 2,
-        errors: [
-          { row: 3, field: "email", message: "邮箱格式不正确", value: "invalid-email" },
-          { row: 7, field: "phone", message: "手机号格式不正确", value: "123456" },
-        ],
-      };
+      // 调用后端API
+      const response = await fetch('http://localhost:8080/api/users/import', {
+        method: 'POST',
+        body: formData,
+      });
 
-      if (mockResult.successCount > 0) {
-        toast({
-          title: "导入成功",
-          description: `导入成功 ${mockResult.successCount} 条记录`,
-        });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      if (mockResult.errorCount > 0) {
+      const result = await response.json();
+
+      if (result.code !== 200) {
+        throw new Error(result.message || '导入失败');
+      }
+
+      const importData = result.data;
+      const importResult: ImportResult = {
+        success: importData.success || false,
+        totalRecords: importData.totalRecords || 0,
+        successCount: importData.successCount || 0,
+        errorCount: importData.errorCount || 0,
+        errors: importData.errors || [],
+      };
+
+      if (importResult.successCount > 0) {
+        toast({
+          title: "导入成功",
+          description: `导入成功 ${importResult.successCount} 条记录`,
+        });
+        // 导入成功后刷新数据
+        try {
+          const data = await fetchPersonnel();
+          setPersonnel(data);
+        } catch (refreshErr) {
+          console.error('刷新数据失败:', refreshErr);
+        }
+      }
+
+      if (importResult.errorCount > 0) {
         toast({
           title: "部分导入失败",
-          description: `${mockResult.errorCount} 条记录导入失败`,
+          description: `${importResult.errorCount} 条记录导入失败，请检查错误详情`,
           variant: "destructive",
         });
       }
 
-      return mockResult;
+      return importResult;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "导入失败";
       setError(errorMessage);
@@ -650,18 +935,12 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
   // 刷新数据
   const refreshData = useCallback(async () => {
     setLoading(true);
-    setError(null);
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // 模拟刷新数据
-      setPersonnel([...mockPersonnel]);
-      setDepartments([...mockDepartments]);
-
+      const data = await fetchPersonnel();
+      setPersonnel(data);
       toast({
         title: "刷新成功",
-        description: "数据刷新成功",
+        description: "数据已更新",
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "刷新失败";

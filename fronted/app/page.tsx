@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { LoginPage } from "@/components/login-page"
 
-import { useOAuth2Auth } from "@/hooks/use-oauth2-auth"
+import { useJWTAuth } from "@/hooks/use-jwt-auth"
 import { ExpenseApplicationPage } from "@/components/expense-application-page"
 import { DataManagementPage } from "@/components/data-management-page"
 import { TravelExpensePage } from "@/components/travel-expense-page"
@@ -14,35 +14,46 @@ import SystemConfigPage from "@/components/system-config-page"
 import ReportAnalyticsPage from "@/components/report-analytics-page"
 import IntegrationManagementPage from "@/components/integration-management-page"
 import OAuth2DemoPage from "@/components/oauth2-demo-page"
+import DatabaseTestPage from "@/components/database-test-page"
 
-export type PageType = "expense-application" | "data-management" | "travel-expense" | "workflow-demo" | "approval-management" | "system-config" | "report-analytics" | "integration-management" | "oauth2-demo"
+export type PageType = "expense-application" | "data-management" | "travel-expense" | "workflow-demo" | "approval-management" | "system-config" | "report-analytics" | "integration-management" | "oauth2-demo" | "database-test"
 
 export default function AdminSPA() {
   const [currentPage, setCurrentPage] = useState<PageType>("expense-application")
-  const { isAuthenticated, user, logout, loading } = useOAuth2Auth()
-  const [showDemoLogin, setShowDemoLogin] = useState(false)
+  const { isAuthenticated, user, logout, loading, updateAuthState } = useJWTAuth()
 
-  const handleDemoLogin = () => {
-    // For demo purposes, we still support the old login method
-    setShowDemoLogin(true)
-  }
-
-  const handleDemoLogout = () => {
-    setShowDemoLogin(false)
-    logout()
-  }
-
-  const handleToggleAuth = () => {
-    if (isAuthenticated || showDemoLogin) {
-      handleDemoLogout()
-    } else {
-      handleDemoLogin()
+  const handleLogin = () => {
+    // 登录成功后，从localStorage读取用户信息并更新状态
+    const userInfo = localStorage.getItem('user_info')
+    if (userInfo) {
+      try {
+        const user = JSON.parse(userInfo)
+        updateAuthState(user)
+      } catch (error) {
+        console.error('更新认证状态失败:', error)
+      }
     }
   }
 
-  // Show login page if not authenticated
-  if (!isAuthenticated && !showDemoLogin) {
-    return <LoginPage onLogin={handleDemoLogin} />
+  const handleLogout = () => {
+    logout()
+  }
+
+  // 显示加载状态
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 显示登录页面
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />
   }
 
   const renderCurrentPage = () => {
@@ -65,6 +76,8 @@ export default function AdminSPA() {
         return <IntegrationManagementPage />
       case "oauth2-demo":
         return <OAuth2DemoPage />
+      case "database-test":
+        return <DatabaseTestPage />
       default:
         return <ExpenseApplicationPage />
     }
@@ -77,8 +90,8 @@ export default function AdminSPA() {
         onPageChange={setCurrentPage}
         user={user}
         isAuthenticated={isAuthenticated}
-        showDemoLogin={showDemoLogin}
-        onLogout={handleDemoLogout}
+        showDemoLogin={false}
+        onLogout={handleLogout}
       />
       <main className="flex-1 overflow-auto">
         {renderCurrentPage()}

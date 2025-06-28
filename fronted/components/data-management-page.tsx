@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -45,33 +45,61 @@ import {
   batchOperationOptions 
 } from "@/lib/validations/personnel-management"
 
-// 部门选项
+// 部门选项 - 与数据库实际部门保持一致
 const departmentOptions = [
   { value: "all", label: "全部部门" },
+  { value: "信息技术部", label: "信息技术部" },
   { value: "财务部", label: "财务部" },
-  { value: "技术部", label: "技术部" },
-  { value: "人事部", label: "人事部" },
-  { value: "市场部", label: "市场部" },
+  { value: "人力资源部", label: "人力资源部" },
+  { value: "交易部", label: "交易部" },
+  { value: "风控部", label: "风控部" },
+  { value: "合规部", label: "合规部" },
+  { value: "客户服务部", label: "客户服务部" },
   { value: "运营部", label: "运营部" },
 ]
 
-// 职位选项
+// 职位选项 - 与数据库实际职位保持一致
 const positionOptions = [
   { value: "all", label: "全部职位" },
-  { value: "经理", label: "经理" },
-  { value: "总监", label: "总监" },
-  { value: "专员", label: "专员" },
-  { value: "工程师", label: "工程师" },
-  { value: "主管", label: "主管" },
+  { value: "系统管理员", label: "系统管理员" },
+  { value: "高级软件工程师", label: "高级软件工程师" },
+  { value: "数据库管理员", label: "数据库管理员" },
+  { value: "系统架构师", label: "系统架构师" },
+  { value: "前端开发", label: "前端开发" },
+  { value: "会计师", label: "会计师" },
+  { value: "高级会计师", label: "高级会计师" },
+  { value: "出纳员", label: "出纳员" },
+  { value: "财务分析师", label: "财务分析师" },
+  { value: "会计助理", label: "会计助理" },
+  { value: "HR专员", label: "HR专员" },
+  { value: "人力资源总监", label: "人力资源总监" },
+  { value: "招聘专员", label: "招聘专员" },
+  { value: "薪酬专员", label: "薪酬专员" },
+  { value: "交易总监", label: "交易总监" },
+  { value: "高级交易员", label: "高级交易员" },
+  { value: "交易员", label: "交易员" },
+  { value: "风控经理", label: "风控经理" },
+  { value: "风控专员", label: "风控专员" },
+  { value: "风险分析师", label: "风险分析师" },
+  { value: "合规总监", label: "合规总监" },
+  { value: "合规专员", label: "合规专员" },
+  { value: "法务专员", label: "法务专员" },
+  { value: "客服总监", label: "客服总监" },
+  { value: "高级客服", label: "高级客服" },
+  { value: "客服专员", label: "客服专员" },
+  { value: "运营总监", label: "运营总监" },
+  { value: "运营专员", label: "运营专员" },
+  { value: "业务运营", label: "业务运营" },
 ]
 
-// 主管选项
+// 主管选项 - 精简版
 const managerOptions = [
   { value: "all", label: "全部主管" },
   { value: "李总监", label: "李总监" },
-  { value: "王总监", label: "王总监" },
-  { value: "赵经理", label: "赵经理" },
+  { value: "魏主管", label: "魏主管" },
+  { value: "钟总监", label: "钟总监" },
   { value: "CEO", label: "CEO" },
+  { value: "CTO", label: "CTO" },
 ]
 
 export function DataManagementPage() {
@@ -126,6 +154,24 @@ export function DataManagementPage() {
   const [editingPersonnel, setEditingPersonnel] = useState<PersonnelInfo | null>(null);
   const [batchOperation, setBatchOperation] = useState<string>("");
   const [batchValue, setBatchValue] = useState<string>("");
+  const [importResult, setImportResult] = useState<any>(null);
+  const [isImporting, setIsImporting] = useState(false);
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // 计算分页数据
+  const totalItems = filteredPersonnel.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const currentPageData = filteredPersonnel.slice(startIndex, endIndex);
+
+  // 重置分页当筛选条件改变时
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filters]);
 
   // 检查是否有活动的过滤条件
   const hasActiveFilters = useMemo(() => {
@@ -145,7 +191,7 @@ export function DataManagementPage() {
       active: { status: "approved" as const, label: "在职" },
       inactive: { status: "rejected" as const, label: "离职" },
       transferred: { status: "in-progress" as const, label: "调动" },
-      resigned: { status: "pending" as const, label: "辞职" },
+      resigned: { status: "draft" as const, label: "辞职" },
     };
     
     const config = statusMap[status];
@@ -398,7 +444,7 @@ export function DataManagementPage() {
           <CardTitle className="flex items-center justify-between">
             <span>人员列表</span>
             <div className="text-sm font-normal text-gray-600">
-              共 {filteredPersonnel.length} 条记录
+              共 {totalItems} 条记录
               {selectedPersonnel.size > 0 && (
                 <span className="ml-2 text-blue-600">
                   已选择 {selectedPersonnel.size} 项
@@ -415,10 +461,16 @@ export function DataManagementPage() {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={
-                        filteredPersonnel.length > 0 &&
-                        filteredPersonnel.every((person) => selectedPersonnel.has(person.id))
+                        currentPageData.length > 0 &&
+                        currentPageData.every((person) => selectedPersonnel.has(person.id))
                       }
-                      onCheckedChange={(checked) => selectAll(!!checked)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          currentPageData.forEach(person => selectPersonnel(person.id))
+                        } else {
+                          currentPageData.forEach(person => selectedPersonnel.has(person.id) && selectPersonnel(person.id))
+                        }
+                      }}
                     />
                   </TableHead>
                   <TableHead>姓名</TableHead>
@@ -443,14 +495,14 @@ export function DataManagementPage() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : filteredPersonnel.length === 0 ? (
+                ) : currentPageData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="text-center py-8 text-gray-500">
                       {hasActiveFilters ? "没有找到符合条件的员工" : "暂无员工数据"}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredPersonnel.map((person) => (
+                  currentPageData.map((person) => (
                     <TableRow key={person.id} className="hover:bg-gray-50">
                       <TableCell>
                         <Checkbox
@@ -505,6 +557,63 @@ export function DataManagementPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* 分页控件 */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-gray-600">
+                显示第 {startIndex + 1} - {Math.min(endIndex, totalItems)} 条，
+                共 {totalItems} 条记录
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                >
+                  上一页
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const page = i + 1;
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  下一页
+                </Button>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="ml-2 px-2 py-1 border border-gray-300 rounded text-sm"
+                >
+                  <option value={10}>10条/页</option>
+                  <option value={20}>20条/页</option>
+                  <option value={50}>50条/页</option>
+                  <option value={100}>100条/页</option>
+                </select>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -522,6 +631,8 @@ export function DataManagementPage() {
           const formData = {
             ...data,
             notes: data.notes || "",
+            emergencyContact: data.emergencyContact || "",
+            emergencyPhone: data.emergencyPhone || "",
           };
           if (editingPersonnel) {
             await updatePersonnel(editingPersonnel.id, formData);
@@ -633,60 +744,135 @@ export function DataManagementPage() {
       </Dialog>
 
       {/* 导入弹窗 */}
-      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogContent className="max-w-md">
+      <Dialog open={showImportDialog} onOpenChange={(open) => {
+        setShowImportDialog(open);
+        if (!open) {
+          setImportResult(null);
+          setIsImporting(false);
+        }
+      }}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>导入员工数据</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="text-sm text-gray-600">
-              支持 Excel (.xlsx) 和 CSV (.csv) 格式
-            </div>
-            
-            <div className="space-y-2">
-              <Label>选择文件</Label>
-              <Input
-                type="file"
-                accept=".xlsx,.csv"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    try {
-                      const result = await importPersonnel(file);
-                      if (result.success) {
-                        setShowImportDialog(false);
+            {!importResult && (
+              <>
+                <div className="text-sm text-gray-600">
+                  支持 CSV (.csv) 格式，请先下载模板文件
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>选择文件</Label>
+                  <Input
+                    type="file"
+                    accept=".csv"
+                    disabled={isImporting}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setIsImporting(true);
+                        try {
+                          const result = await importPersonnel(file);
+                          setImportResult(result);
+                        } catch (error) {
+                          console.error('导入失败:', error);
+                        } finally {
+                          setIsImporting(false);
+                        }
                       }
-                    } catch (error) {
-                      // 错误已经在hook中处理
-                    }
-                  }
-                }}
-              />
-            </div>
+                    }}
+                  />
+                  {isImporting && (
+                    <div className="flex items-center gap-2 text-sm text-blue-600">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      正在导入数据，请稍候...
+                    </div>
+                  )}
+                </div>
 
-            <div className="text-xs text-gray-500">
-              <div className="font-medium mb-1">文件格式要求：</div>
-              <ul className="space-y-1">
-                <li>• 第一行为表头</li>
-                <li>• 必需字段：姓名、登录名、工号、邮箱、手机、部门、职位</li>
-                <li>• 员工类型：正式员工/兼职员工/合同工</li>
-                <li>• 员工状态：在职/离职/调动/辞职</li>
-              </ul>
-            </div>
+                <div className="text-xs text-gray-500">
+                  <div className="font-medium mb-1">文件格式要求：</div>
+                  <ul className="space-y-1">
+                    <li>• 第一行为表头</li>
+                    <li>• 必需字段：姓名、工号、邮箱、手机、部门、职位</li>
+                    <li>• 员工类型：正式员工/兼职员工/合同工/主管</li>
+                    <li>• 员工状态：在职/离职/调动/辞职</li>
+                  </ul>
+                </div>
+              </>
+            )}
+
+            {/* 导入结果显示 */}
+            {importResult && (
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium mb-3">导入结果</h4>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">总记录数：</span>
+                      <span className="font-medium">{importResult.totalRecords}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">成功导入：</span>
+                      <span className="font-medium text-green-600">{importResult.successCount}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">导入失败：</span>
+                      <span className="font-medium text-red-600">{importResult.errorCount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 错误详情 */}
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div>
+                    <h5 className="font-medium mb-2 text-red-600">错误详情：</h5>
+                    <div className="max-h-40 overflow-y-auto border rounded p-3 bg-red-50">
+                      {importResult.errors.map((error: any, index: number) => (
+                        <div key={index} className="text-sm mb-2 last:mb-0">
+                          <span className="text-red-700">第{error.row}行 - {error.field}：</span>
+                          <span className="text-red-600">{error.message}</span>
+                          {error.value && (
+                            <span className="text-gray-600 ml-2">({error.value})</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowImportDialog(false)}>
-                取消
-              </Button>
-              <Button variant="outline" onClick={() => {
-                // 下载模板
-                const link = document.createElement('a');
-                link.href = '/templates/personnel-template.xlsx';
-                link.download = '员工信息导入模板.xlsx';
-                link.click();
-              }}>
-                下载模板
-              </Button>
+              {!importResult ? (
+                <>
+                  <Button variant="outline" onClick={() => setShowImportDialog(false)} disabled={isImporting}>
+                    取消
+                  </Button>
+                  <Button variant="outline" onClick={() => {
+                    // 下载CSV模板
+                    const link = document.createElement('a');
+                    link.href = '/templates/personnel-template.csv';
+                    link.download = '员工信息导入模板.csv';
+                    link.click();
+                  }} disabled={isImporting}>
+                    下载模板
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => {
+                    setImportResult(null);
+                    setIsImporting(false);
+                  }}>
+                    重新导入
+                  </Button>
+                  <Button onClick={() => setShowImportDialog(false)}>
+                    完成
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </DialogContent>

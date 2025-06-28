@@ -35,10 +35,9 @@ export const personnelFormSchema = z.object({
     .string()
     .min(1, "请选择部门"),
   
-  position: z
-    .string()
-    .min(2, "职位至少需要2个字符")
-    .max(50, "职位不能超过50个字符"),
+  position: z.enum(["经理", "总监", "专员", "工程师", "主管"], {
+    errorMap: () => ({ message: "请选择职位" })
+  }),
   
   manager: z
     .string()
@@ -65,15 +64,19 @@ export const personnelFormSchema = z.object({
     })
     .max(new Date(), "入职日期不能晚于今天"),
   
-  // 紧急联系人
+  // 紧急联系人（改为可选）
   emergencyContact: z
     .string()
-    .min(2, "紧急联系人姓名至少需要2个字符")
-    .max(50, "紧急联系人姓名不能超过50个字符"),
+    .max(50, "紧急联系人姓名不能超过50个字符")
+    .optional()
+    .or(z.literal("")),
   
   emergencyPhone: z
     .string()
-    .regex(/^1[3-9]\d{9}$/, "请输入有效的紧急联系人手机号码"),
+    .optional()
+    .refine((val) => !val || val === "" || /^1[3-9]\d{9}$/.test(val), {
+      message: "请输入有效的紧急联系人手机号码"
+    }),
   
   // 备注
   notes: z

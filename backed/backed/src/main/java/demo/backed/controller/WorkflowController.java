@@ -81,6 +81,7 @@ public class WorkflowController {
         response.put("message", "节点状态更新成功");
         response.put("nodeId", nodeId);
         response.put("newStatus", newStatus);
+        response.put("comment", comment);  // 将评论信息也返回给前端
         response.put("updateTime", new Date());
         
         return response;

@@ -39,6 +39,11 @@ const nextConfig = {
         source: '/health',
         destination: '/api/health',
       },
+      // 代理后端API请求
+      {
+        source: '/api/backend/:path*',
+        destination: 'http://localhost:8080/api/:path*',
+      },
     ];
   },
   async headers() {
