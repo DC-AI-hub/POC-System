@@ -40,7 +40,7 @@ services:
       - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=production
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hkex_poc
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://1.15.34.167:5432/hkex_poc
       - SPRING_DATASOURCE_USERNAME=hkex_user
       - SPRING_DATASOURCE_PASSWORD=hkex_password_2024
       - SPRING_REDIS_HOST=redis
@@ -51,10 +51,9 @@ services:
     networks:
       - hkex-network
     depends_on:
-      - postgres
       - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/database/health"]
       interval: 30s
       timeout: 10s
       retries: 3
