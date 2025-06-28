@@ -1,0 +1,12 @@
+2025/06/28 09:43:09 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:10 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:11 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:11 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:12 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:14 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:18 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:24 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:43:38 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:44:04 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:44:56 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44
+2025/06/28 09:45:56 [emerg] 1#1: "add_header" directive is not allowed here in /etc/nginx/nginx.conf:44

@@ -1,10 +1,10 @@
 services:
-  # Next.js 应用
-  app:
+  # Next.js 前端应用
+  frontend:
     build:
       context: ./fronted
       dockerfile: Dockerfile
-    container_name: hkex-poc-app
+    container_name: hkex-poc-frontend
     restart: unless-stopped
     ports:
       - "5137:5137"
@@ -12,11 +12,11 @@ services:
       - NODE_ENV=production
       - PORT=5137
       - NEXT_PUBLIC_APP_URL=http://localhost:5137
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:5137/api
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
     volumes:
       - ./logs/app:/app/logs
       - ./uploads:/app/uploads
-      - ./app/.env.local:/app/.env.local:ro
+      - ./fronted/.env.local:/app/.env.local:ro
     networks:
       - hkex-network
     depends_on:
@@ -29,13 +29,44 @@ services:
       retries: 3
       start_period: 40s
 
+  # Spring Boot 后端应用
+  backend:
+    build:
+      context: ./backed
+      dockerfile: Dockerfile
+    container_name: hkex-poc-backend
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hkex_poc
+      - SPRING_DATASOURCE_USERNAME=hkex_user
+      - SPRING_DATASOURCE_PASSWORD=hkex_password_2024
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password_2024
+    volumes:
+      - ./logs/backend:/app/logs
+    networks:
+      - hkex-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   # Nginx 反向代理
   nginx:
     image: nginx:alpine
     container_name: hkex-poc-nginx
     restart: unless-stopped
     ports:
-      - "8080:5137"
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./logs/nginx:/var/log/nginx
@@ -43,9 +74,10 @@ services:
     networks:
       - hkex-network
     depends_on:
-      - app
+      - frontend
+      - backend
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5137/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
       timeout: 10s
       retries: 3
