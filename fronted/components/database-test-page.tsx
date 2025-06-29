@@ -68,7 +68,7 @@ export function DatabaseTestPage() {
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('connection')
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://1.15.34.167:8080/api'
 
   // 测试数据库连接
   const testConnection = async () => {

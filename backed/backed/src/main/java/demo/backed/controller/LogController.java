@@ -410,4 +410,36 @@ public class LogController {
         
         return response;
     }
+
+    // 测试日志记录
+    @PostMapping("/test")
+    public Map<String, Object> testLogging(@RequestBody Map<String, Object> testRequest) {
+        Map<String, Object> response = new HashMap<>();
+        
+        String logType = (String) testRequest.get("logType");
+        String message = (String) testRequest.get("message");
+        
+        // 记录不同类型的日志
+        if ("system".equals(logType)) {
+            // 记录系统日志
+            System.out.println("系统日志测试: " + message);
+            response.put("message", "系统日志记录成功");
+        } else if ("audit".equals(logType)) {
+            // 记录审计日志
+            System.out.println("审计日志测试: " + message);
+            response.put("message", "审计日志记录成功");
+        } else if ("security".equals(logType)) {
+            // 记录安全日志
+            System.out.println("安全日志测试: " + message);
+            response.put("message", "安全日志记录成功");
+        } else {
+            response.put("message", "未知的日志类型");
+        }
+        
+        response.put("success", true);
+        response.put("timestamp", new Date());
+        response.put("logType", logType);
+        
+        return response;
+    }
 } 

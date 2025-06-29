@@ -166,7 +166,7 @@ const mockDepartments: Department[] = [
 ];
 
 // 添加API调用函数
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'http://1.15.34.167:8080/api';
 
 // 通用API调用函数，自动携带JWT Token
 const apiCall = async (url: string, options: RequestInit = {}): Promise<Response> => {
@@ -783,7 +783,7 @@ export function usePersonnelManagement(): UsePersonnelManagementReturn {
       formData.append('file', file);
 
       // 调用后端API
-      const response = await fetch('http://localhost:8080/api/users/import', {
+      const response = await fetch('http://1.15.34.167:8080/api/users/import', {
         method: 'POST',
         body: formData,
       });

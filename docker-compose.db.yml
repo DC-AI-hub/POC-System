@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库 (暴露版本)
+  postgres-exposed:
+    image: postgres:15-alpine
+    container_name: hkex-poc-db-exposed
+    restart: unless-stopped
+    ports:
+      - "5432:5432"  # 暴露PostgreSQL端口
+    environment:
+      - POSTGRES_DB=hkex_poc
+      - POSTGRES_USER=hkex_user
+      - POSTGRES_PASSWORD=hkex_password_2024
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_exposed_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./logs/postgres:/var/log/postgresql
+    networks:
+      - hkex-db-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hkex_user -d hkex_poc"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # pgAdmin 数据库管理界面
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: hkex-poc-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"  # pgAdmin Web界面端口
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@hkex.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - hkex-db-network
+    depends_on:
+      - postgres-exposed
+
+  # Redis 缓存 (暴露版本)
+  redis-exposed:
+    image: redis:7-alpine
+    container_name: hkex-poc-redis-exposed
+    restart: unless-stopped
+    ports:
+      - "6379:6379"  # 暴露Redis端口
+    command: redis-server --appendonly yes --requirepass redis_password_2024
+    volumes:
+      - redis_exposed_data:/data
+      - ./logs/redis:/var/log/redis
+    networks:
+      - hkex-db-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_exposed_data:
+    driver: local
+  redis_exposed_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  hkex-db-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16 

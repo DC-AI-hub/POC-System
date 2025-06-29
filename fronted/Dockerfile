@@ -61,6 +61,6 @@ ENV HOSTNAME "0.0.0.0"
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5137/api/health || exit 1
+  CMD curl -f http://1.15.34.167:5137/api/health || exit 1
 
 CMD ["node", "server.js"] 

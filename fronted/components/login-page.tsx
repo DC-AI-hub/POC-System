@@ -100,7 +100,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
     try {
       // 调用后端JWT认证API
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch('http://1.15.34.167:8080/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
