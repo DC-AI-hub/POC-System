@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 
+          https://maven.apache.org/xsd/settings-1.2.0.xsd">
+  
+  <!-- 本地仓库路径 -->
+  <localRepository>/home/ubuntu/.m2/repository</localRepository>
+  
+  <!-- 镜像配置 -->
+  <mirrors>
+    <!-- 阿里云镜像 -->
+    <mirror>
+      <id>aliyunmaven</id>
+      <mirrorOf>*</mirrorOf>
+      <name>阿里云公共仓库</name>
+      <url>https://maven.aliyun.com/repository/public</url>
+    </mirror>
+    
+    <!-- 阿里云Google镜像 -->
+    <mirror>
+      <id>aliyunmaven-google</id>
+      <mirrorOf>google</mirrorOf>
+      <name>阿里云Google仓库</name>
+      <url>https://maven.aliyun.com/repository/google</url>
+    </mirror>
+    
+    <!-- 阿里云Spring镜像 -->
+    <mirror>
+      <id>aliyunmaven-spring</id>
+      <mirrorOf>spring</mirrorOf>
+      <name>阿里云Spring仓库</name>
+      <url>https://maven.aliyun.com/repository/spring</url>
+    </mirror>
+    
+    <!-- 阿里云Spring插件镜像 -->
+    <mirror>
+      <id>aliyunmaven-spring-plugin</id>
+      <mirrorOf>spring-plugin</mirrorOf>
+      <name>阿里云Spring插件仓库</name>
+      <url>https://maven.aliyun.com/repository/spring-plugin</url>
+    </mirror>
+    
+    <!-- 阿里云Gradle镜像 -->
+    <mirror>
+      <id>aliyunmaven-gradle-plugin</id>
+      <mirrorOf>gradle-plugin</mirrorOf>
+      <name>阿里云Gradle插件仓库</name>
+      <url>https://maven.aliyun.com/repository/gradle-plugin</url>
+    </mirror>
+  </mirrors>
+  
+  <!-- 配置文件 -->
+  <profiles>
+    <profile>
+      <id>aliyun</id>
+      <repositories>
+        <repository>
+          <id>aliyun</id>
+          <url>https://maven.aliyun.com/repository/public</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>aliyun-plugin</id>
+          <url>https://maven.aliyun.com/repository/public</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  
+  <!-- 激活配置 -->
+  <activeProfiles>
+    <activeProfile>aliyun</activeProfile>
+  </activeProfiles>
+  
+  <!-- 插件组 -->
+  <pluginGroups>
+    <pluginGroup>org.apache.maven.plugins</pluginGroup>
+    <pluginGroup>org.codehaus.mojo</pluginGroup>
+  </pluginGroups>
+  
+</settings> 

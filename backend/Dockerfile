@@ -24,6 +24,10 @@ RUN wget -q https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binar
     mv apache-maven-${MAVEN_VERSION} /opt/maven && \
     rm apache-maven-${MAVEN_VERSION}-bin.tar.gz
 
+# 创建 Maven 配置文件以使用阿里云镜像
+RUN mkdir -p /root/.m2 && \
+    echo '<?xml version="1.0" encoding="UTF-8"?><settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><mirrors><mirror><id>aliyun</id><name>Aliyun Maven</name><url>https://maven.aliyun.com/repository/public</url><mirrorOf>central</mirrorOf></mirror></mirrors></settings>' > /root/.m2/settings.xml
+
 # 构建应用
 RUN mvn clean package -DskipTests
 
