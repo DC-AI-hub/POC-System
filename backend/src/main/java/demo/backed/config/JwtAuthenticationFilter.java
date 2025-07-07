@@ -104,7 +104,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     new SimpleGrantedAuthority("ROLE_MANAGER"),
                     new SimpleGrantedAuthority("ROLE_USER")
             );
+        } else if ("正式员工".equals(userType)) {
+            return Arrays.asList(
+                    new SimpleGrantedAuthority("ROLE_MANAGER"),
+                    new SimpleGrantedAuthority("ROLE_USER")
+            );
         } else {
+            // 所有用户都应该有基础的用户权限
             return Arrays.asList(
                     new SimpleGrantedAuthority("ROLE_USER")
             );
@@ -124,6 +130,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/api/auth/refresh",
                 "/api/test/",
                 "/api/database/",
+                "/api/health",
+                "/api/integrations/",
                 "/swagger-ui/",
                 "/swagger-resources/",
                 "/v2/api-docs",

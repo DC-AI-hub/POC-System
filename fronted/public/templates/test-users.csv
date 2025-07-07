@@ -1,0 +1,4 @@
+employeeId,userName,email,phone,department,position,userType,status,manager,workLocation,emergencyContact,emergencyPhone,notes
+EMP101,测试用户1,test1@hkex.com,13800138001,测试部门,测试职位,员工,在职,系统管理员,香港中环,紧急联系人1,13900138001,测试用户1
+EMP102,测试用户2,test2@hkex.com,13800138002,测试部门,测试职位,员工,在职,系统管理员,香港中环,紧急联系人2,13900138002,测试用户2
+EMP103,测试用户3,test3@hkex.com,13800138003,测试部门,测试职位,员工,在职,系统管理员,香港中环,紧急联系人3,13900138003,测试用户3 

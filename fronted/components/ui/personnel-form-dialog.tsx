@@ -312,7 +312,7 @@ export function PersonnelFormDialog({
           email: personnel.email,
           phone: personnel.phone,
           department: personnel.department,
-          position: personnel.position as "经理" | "总监" | "专员" | "工程师" | "主管",
+          position: personnel.position,
           manager: personnel.manager,
           workLocation: personnel.workLocation || "",
           employeeType: personnel.employeeType,
@@ -603,7 +603,7 @@ export function PersonnelFormDialog({
                     </Label>
                     <Select
                       value={watchedValues.position}
-                      onValueChange={(value) => setValue("position", value as "经理" | "总监" | "专员" | "工程师" | "主管")}
+                      onValueChange={(value) => setValue("position", value)}
                     >
                       <SelectTrigger className={cn(errors.position && "border-red-500")}>
                         <SelectValue placeholder="请选择职位" />

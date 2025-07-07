@@ -12,7 +12,7 @@ services:
       - NODE_ENV=production
       - PORT=5137
       - NEXT_PUBLIC_APP_URL=http://localhost:5137
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
+      - NEXT_PUBLIC_API_BASE_URL=/api/backend
     volumes:
       - ./logs/app:/app/logs
       - ./uploads:/app/uploads

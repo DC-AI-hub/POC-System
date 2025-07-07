@@ -352,9 +352,9 @@ public class UserController {
      */
     @PostMapping("/import")
     @ApiOperation("导入用户数据")
-    public ApiResponse<Map<String, Object>> importUsers(@RequestParam("file") MultipartFile file) {
+    public ApiResponse<Map<String, Object>> importUsers(@RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            if (file.isEmpty()) {
+            if (file == null || file.isEmpty()) {
                 return ApiResponse.badRequest("请选择要导入的文件");
             }
             

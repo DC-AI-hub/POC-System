@@ -1,0 +1,338 @@
+{
+  "test_summary": {
+    "total": 12,
+    "passed": 11,
+    "failed": 0,
+    "info": 1,
+    "success_rate": 91.66666666666666
+  },
+  "test_results": [
+    {
+      "test_id": 1,
+      "test_name": "后端健康检查",
+      "status": "PASS",
+      "message": "后端服务正常运行",
+      "timestamp": "2025-07-07T17:57:41.100183",
+      "data": null
+    },
+    {
+      "test_id": 2,
+      "test_name": "用户登录",
+      "status": "PASS",
+      "message": "成功获取JWT token",
+      "timestamp": "2025-07-07T17:57:41.489710",
+      "data": null
+    },
+    {
+      "test_id": 3,
+      "test_name": "获取费用科目",
+      "status": "PASS",
+      "message": "成功获取 7 个费用科目",
+      "timestamp": "2025-07-07T17:57:41.499479",
+      "data": [
+        {
+          "code": "CAT_001",
+          "name": "交通费",
+          "description": "交通费相关费用",
+          "id": 1,
+          "isActive": true
+        },
+        {
+          "code": "CAT_002",
+          "name": "住宿费",
+          "description": "住宿费相关费用",
+          "id": 2,
+          "isActive": true
+        },
+        {
+          "code": "CAT_003",
+          "name": "餐饮费",
+          "description": "餐饮费相关费用",
+          "id": 3,
+          "isActive": true
+        },
+        {
+          "code": "CAT_004",
+          "name": "办公用品",
+          "description": "办公用品相关费用",
+          "id": 4,
+          "isActive": true
+        },
+        {
+          "code": "CAT_005",
+          "name": "通讯费",
+          "description": "通讯费相关费用",
+          "id": 5,
+          "isActive": true
+        },
+        {
+          "code": "CAT_006",
+          "name": "培训费",
+          "description": "培训费相关费用",
+          "id": 6,
+          "isActive": true
+        },
+        {
+          "code": "CAT_007",
+          "name": "其他",
+          "description": "其他相关费用",
+          "id": 7,
+          "isActive": true
+        }
+      ]
+    },
+    {
+      "test_id": 4,
+      "test_name": "获取申请单列表",
+      "status": "PASS",
+      "message": "成功获取 2 个申请单",
+      "timestamp": "2025-07-07T17:57:41.508628",
+      "data": [
+        {
+          "totalAmount": 1500.0,
+          "expenseType": "差旅费",
+          "submitTime": "2025-07-06T09:57:41.506+00:00",
+          "expenseItems": [
+            {
+              "date": "2025-06-25",
+              "amount": 800.0,
+              "expenseCategory": "交通费",
+              "description": "高铁票"
+            },
+            {
+              "date": "2025-06-25",
+              "amount": 700.0,
+              "expenseCategory": "住宿费",
+              "description": "酒店住宿"
+            }
+          ],
+          "applicationNo": "EXP202506270001",
+          "description": "北京出差费用报销",
+          "currency": "CNY",
+          "id": 1,
+          "applicantName": "张三",
+          "department": "技术部",
+          "status": "pending"
+        },
+        {
+          "totalAmount": 350.0,
+          "expenseType": "办公用品",
+          "submitTime": "2025-07-05T09:57:41.506+00:00",
+          "applicationNo": "EXP202506270002",
+          "description": "办公用品采购",
+          "currency": "CNY",
+          "id": 2,
+          "applicantName": "李四",
+          "department": "财务部",
+          "status": "approved"
+        }
+      ]
+    },
+    {
+      "test_id": 5,
+      "test_name": "获取费用统计",
+      "status": "PASS",
+      "message": "成功获取费用统计信息",
+      "timestamp": "2025-07-07T17:57:41.516454",
+      "data": {
+        "pendingApplications": 8,
+        "totalAmount": 45600.0,
+        "rejectedApplications": 2,
+        "approvedApplications": 15,
+        "averageAmount": 1824.0,
+        "totalApplications": 25,
+        "categoryStatistics": [
+          {
+            "amount": 28500.0,
+            "count": 12,
+            "category": "差旅费"
+          },
+          {
+            "amount": 12300.0,
+            "count": 8,
+            "category": "办公用品"
+          }
+        ]
+      }
+    },
+    {
+      "test_id": 6,
+      "test_name": "开始完整工作流程测试",
+      "status": "INFO",
+      "message": "测试费用申请从创建到审批的完整流程",
+      "timestamp": "2025-07-07T17:57:41.516502",
+      "data": null
+    },
+    {
+      "test_id": 7,
+      "test_name": "创建费用申请",
+      "status": "PASS",
+      "message": "成功创建申请单，ID: 1751882261523",
+      "timestamp": "2025-07-07T17:57:41.525325",
+      "data": {
+        "reason": "测试费用申请，用于系统功能验证",
+        "expenseItems": [
+          {
+            "expenseCategory": "办公用品",
+            "purpose": "购买办公用品",
+            "amount": 150.0
+          },
+          {
+            "expenseCategory": "交通费",
+            "purpose": "出差交通费用",
+            "amount": 200.0
+          }
+        ],
+        "applicationNo": "EXP1751882261523",
+        "employeeId": "EMP001",
+        "applicant": "张三",
+        "expenseDate": "2025-07-08",
+        "submitTime": "2025-07-07T09:57:41.523+00:00",
+        "approvalComment": "",
+        "supervisorComment": "",
+        "company": "测试公司",
+        "id": 1751882261523,
+        "department": "技术部",
+        "status": "draft",
+        "applicationDate": "2025-07-07"
+      }
+    },
+    {
+      "test_id": 8,
+      "test_name": "获取申请单详情",
+      "status": "PASS",
+      "message": "成功获取申请单 1751882261523 详情",
+      "timestamp": "2025-07-07T17:57:41.530470",
+      "data": {
+        "expenseType": "差旅费",
+        "attachments": [
+          {
+            "uploadBy": "张三",
+            "fileName": "发票.jpg",
+            "fileSize": "2.5MB",
+            "id": 1,
+            "uploadTime": "2025-07-07T09:57:41.529+00:00"
+          }
+        ],
+        "expenseItems": [
+          {
+            "date": "2025-06-25",
+            "amount": 800.0,
+            "expenseCategory": "交通费",
+            "description": "高铁票",
+            "receipt": "receipt_001.jpg",
+            "id": 1
+          }
+        ],
+        "applicationNo": "EXP202506270001",
+        "description": "北京出差费用报销",
+        "applicantName": "张三",
+        "totalAmount": 1500.0,
+        "approvalHistory": [
+          {
+            "action": "pending",
+            "step": 1,
+            "comment": "",
+            "processTime": null,
+            "approverName": "李主管"
+          }
+        ],
+        "submitTime": "2025-07-07T09:57:41.529+00:00",
+        "currency": "CNY",
+        "id": 1751882261523,
+        "position": "开发工程师",
+        "applicantId": 1,
+        "department": "技术部",
+        "status": "pending"
+      }
+    },
+    {
+      "test_id": 9,
+      "test_name": "提交申请单",
+      "status": "PASS",
+      "message": "成功提交申请单 1751882261523",
+      "timestamp": "2025-07-07T17:57:41.534626",
+      "data": {
+        "submitTime": "2025-07-07T09:57:41.533+00:00",
+        "success": true,
+        "message": "费用申请单已提交，等待审批",
+        "applicationId": 1751882261523,
+        "status": "pending"
+      }
+    },
+    {
+      "test_id": 10,
+      "test_name": "审批申请单",
+      "status": "PASS",
+      "message": "成功审批申请单 1751882261523",
+      "timestamp": "2025-07-07T17:57:41.538742",
+      "data": {
+        "success": true,
+        "approverId": "APPROVER001",
+        "action": "approve",
+        "comment": "审批通过，费用合理",
+        "message": "申请单审批通过",
+        "applicationId": 1751882261523,
+        "processTime": "2025-07-07T09:57:41.537+00:00"
+      }
+    },
+    {
+      "test_id": 11,
+      "test_name": "获取申请单详情",
+      "status": "PASS",
+      "message": "成功获取申请单 1751882261523 详情",
+      "timestamp": "2025-07-07T17:57:41.542533",
+      "data": {
+        "expenseType": "差旅费",
+        "attachments": [
+          {
+            "uploadBy": "张三",
+            "fileName": "发票.jpg",
+            "fileSize": "2.5MB",
+            "id": 1,
+            "uploadTime": "2025-07-07T09:57:41.541+00:00"
+          }
+        ],
+        "expenseItems": [
+          {
+            "date": "2025-06-25",
+            "amount": 800.0,
+            "expenseCategory": "交通费",
+            "description": "高铁票",
+            "receipt": "receipt_001.jpg",
+            "id": 1
+          }
+        ],
+        "applicationNo": "EXP202506270001",
+        "description": "北京出差费用报销",
+        "applicantName": "张三",
+        "totalAmount": 1500.0,
+        "approvalHistory": [
+          {
+            "action": "pending",
+            "step": 1,
+            "comment": "",
+            "processTime": null,
+            "approverName": "李主管"
+          }
+        ],
+        "submitTime": "2025-07-07T09:57:41.541+00:00",
+        "currency": "CNY",
+        "id": 1751882261523,
+        "position": "开发工程师",
+        "applicantId": 1,
+        "department": "技术部",
+        "status": "pending"
+      }
+    },
+    {
+      "test_id": 12,
+      "test_name": "工作流程完整性",
+      "status": "PASS",
+      "message": "完整工作流程测试成功",
+      "timestamp": "2025-07-07T17:57:41.542561",
+      "data": null
+    }
+  ],
+  "timestamp": "2025-07-07T17:57:41.542588"
+}

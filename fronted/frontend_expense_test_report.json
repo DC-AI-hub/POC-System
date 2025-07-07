@@ -1,0 +1,172 @@
+{
+  "test_summary": {
+    "total": 23,
+    "passed": 16,
+    "failed": 7,
+    "success_rate": 69.56521739130434
+  },
+  "test_results": [
+    {
+      "test_id": 1,
+      "test_name": "页面加载",
+      "status": "PASS",
+      "message": "页面成功加载",
+      "timestamp": "2025-07-07T09:57:47.780Z"
+    },
+    {
+      "test_id": 2,
+      "test_name": "用户登录",
+      "status": "PASS",
+      "message": "登录成功",
+      "timestamp": "2025-07-07T09:58:02.301Z"
+    },
+    {
+      "test_id": 3,
+      "test_name": "表单字段-申请人",
+      "status": "FAIL",
+      "message": "申请人字段不存在",
+      "timestamp": "2025-07-07T09:58:04.405Z"
+    },
+    {
+      "test_id": 4,
+      "test_name": "表单字段-员工工号",
+      "status": "FAIL",
+      "message": "员工工号字段不存在",
+      "timestamp": "2025-07-07T09:58:04.509Z"
+    },
+    {
+      "test_id": 5,
+      "test_name": "表单字段-事由描述",
+      "status": "FAIL",
+      "message": "事由描述字段不存在",
+      "timestamp": "2025-07-07T09:58:04.612Z"
+    },
+    {
+      "test_id": 6,
+      "test_name": "表单字段完整性",
+      "status": "FAIL",
+      "message": "只找到 0/3 个字段",
+      "timestamp": "2025-07-07T09:58:04.612Z"
+    },
+    {
+      "test_id": 7,
+      "test_name": "填写申请人",
+      "status": "FAIL",
+      "message": "申请人字段不存在",
+      "timestamp": "2025-07-07T09:58:04.715Z"
+    },
+    {
+      "test_id": 8,
+      "test_name": "填写员工工号",
+      "status": "FAIL",
+      "message": "员工工号字段不存在",
+      "timestamp": "2025-07-07T09:58:04.818Z"
+    },
+    {
+      "test_id": 9,
+      "test_name": "填写事由",
+      "status": "FAIL",
+      "message": "事由字段不存在",
+      "timestamp": "2025-07-07T09:58:04.922Z"
+    },
+    {
+      "test_id": 10,
+      "test_name": "按钮-简体中文中文",
+      "status": "PASS",
+      "message": "找到按钮: 简体中文中文",
+      "timestamp": "2025-07-07T09:58:05.958Z"
+    },
+    {
+      "test_id": 11,
+      "test_name": "按钮-账号登录",
+      "status": "PASS",
+      "message": "找到按钮: 账号登录",
+      "timestamp": "2025-07-07T09:58:06.061Z"
+    },
+    {
+      "test_id": 12,
+      "test_name": "按钮-手机号登录",
+      "status": "PASS",
+      "message": "找到按钮: 手机号登录",
+      "timestamp": "2025-07-07T09:58:06.163Z"
+    },
+    {
+      "test_id": 13,
+      "test_name": "按钮-扫码登录",
+      "status": "PASS",
+      "message": "找到按钮: 扫码登录",
+      "timestamp": "2025-07-07T09:58:06.266Z"
+    },
+    {
+      "test_id": 14,
+      "test_name": "按钮-忘记密码",
+      "status": "PASS",
+      "message": "找到按钮: 忘记密码",
+      "timestamp": "2025-07-07T09:58:06.574Z"
+    },
+    {
+      "test_id": 15,
+      "test_name": "按钮-登录",
+      "status": "PASS",
+      "message": "找到按钮: 登录",
+      "timestamp": "2025-07-07T09:58:06.677Z"
+    },
+    {
+      "test_id": 16,
+      "test_name": "按钮-《隐私政策》",
+      "status": "PASS",
+      "message": "找到按钮: 《隐私政策》",
+      "timestamp": "2025-07-07T09:58:06.781Z"
+    },
+    {
+      "test_id": 17,
+      "test_name": "按钮-《用户协议》",
+      "status": "PASS",
+      "message": "找到按钮: 《用户协议》",
+      "timestamp": "2025-07-07T09:58:06.884Z"
+    },
+    {
+      "test_id": 18,
+      "test_name": "按钮-🌐Google",
+      "status": "PASS",
+      "message": "找到按钮: 🌐Google",
+      "timestamp": "2025-07-07T09:58:06.988Z"
+    },
+    {
+      "test_id": 19,
+      "test_name": "按钮-🐙GitHub",
+      "status": "PASS",
+      "message": "找到按钮: 🐙GitHub",
+      "timestamp": "2025-07-07T09:58:07.091Z"
+    },
+    {
+      "test_id": 20,
+      "test_name": "按钮-🪟Microsoft",
+      "status": "PASS",
+      "message": "找到按钮: 🪟Microsoft",
+      "timestamp": "2025-07-07T09:58:07.193Z"
+    },
+    {
+      "test_id": 21,
+      "test_name": "按钮-💬微信",
+      "status": "PASS",
+      "message": "找到按钮: 💬微信",
+      "timestamp": "2025-07-07T09:58:07.296Z"
+    },
+    {
+      "test_id": 22,
+      "test_name": "按钮-stagewise",
+      "status": "PASS",
+      "message": "找到按钮: stagewise",
+      "timestamp": "2025-07-07T09:58:07.500Z"
+    },
+    {
+      "test_id": 23,
+      "test_name": "按钮功能",
+      "status": "PASS",
+      "message": "找到 13 个按钮",
+      "timestamp": "2025-07-07T09:58:07.808Z"
+    }
+  ],
+  "timestamp": "2025-07-07T09:58:07.809Z"
+}

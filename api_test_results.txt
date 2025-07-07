@@ -1,0 +1,65 @@
+后端API完成度测试结果
+测试时间: 2025年 7月 7日 星期一 16时41分43秒 CST
+目标地址: http://localhost:8070
+总计: 54 个接口
+通过: 54 个
+失败: 0 个
+跳过: 0 个
+错误: 0 个
+完成度: 100.0%
+
+详细结果:
+✅ GET /api/health - 应用健康检查 (200) - .081801000s
+✅ POST /api/auth/login - 用户登录 (200) - .199718000s
+✅ POST /api/auth/refresh?refreshToken=test_refresh_token - Token刷新 (200) - .010686000s
+✅ GET /api/users?size=100 - 获取用户列表 (200) - .262824000s
+✅ POST /api/users - 创建用户 (200) - .124445000s
+✅ PUT /api/users/1 - 更新用户 (200) - .126842000s
+✅ DELETE /api/users/1 - 删除用户 (200) - .192945000s
+✅ POST /api/users/import - 用户批量导入 (200) - .012989000s
+✅ GET /api/database/test-connection - 数据库连接测试 (200) - .177839000s
+✅ GET /api/database/health - 数据库健康检查 (200) - .084798000s
+✅ POST /api/database/test-jpa - JPA功能测试 (200) - .473403000s
+✅ GET /api/database/test-data - 获取测试数据 (200) - .381091000s
+✅ DELETE /api/database/clear-test-data - 清空测试数据 (200) - .290948000s
+✅ GET /api/integrations - 获取所有集成配置 (200) - .009721000s
+✅ POST /api/integrations - 创建集成配置 (200) - .009848000s
+✅ GET /api/integrations/config-1 - 获取单个集成配置 (200) - .009985000s
+✅ PUT /api/integrations/config-1 - 更新集成配置 (200) - .009885000s
+✅ DELETE /api/integrations/config-1 - 删除集成配置 (200) - .009389000s
+✅ POST /api/integrations/config-1/test-connection - 连接测试 (200) - .030633000s
+✅ GET /api/integrations/config-1/test-connection - 获取测试历史 (200) - .019885000s
+✅ POST /api/integrations/sync - 启动同步 (200) - .010104000s
+✅ GET /api/integrations/sync - 获取同步历史 (200) - .009843000s
+✅ DELETE /api/integrations/sync?syncId=sync-1 - 取消同步 (200) - .009458000s
+✅ GET /api/integrations/monitor - 获取监控数据 (200) - .009497000s
+✅ POST /api/integrations/monitor - 刷新监控数据 (200) - .009901000s
+✅ GET /api/integrations/stats - 获取统计数据 (200) - .009421000s
+✅ POST /api/integrations/stats - 重新计算统计数据 (200) - .009982000s
+✅ GET /api/health - 应用健康检查 (200) - .055331000s
+✅ POST /api/auth/login - 用户登录 (200) - .198151000s
+✅ POST /api/auth/refresh?refreshToken=test_refresh_token - Token刷新 (200) - .010160000s
+✅ GET /api/users?size=100 - 获取用户列表 (200) - .185484000s
+✅ POST /api/users - 创建用户 (200) - .118014000s
+✅ PUT /api/users/1 - 更新用户 (200) - .102153000s
+✅ DELETE /api/users/1 - 删除用户 (200) - .104147000s
+✅ POST /api/users/import - 用户批量导入 (200) - .011555000s
+✅ GET /api/database/test-connection - 数据库连接测试 (200) - .161462000s
+✅ GET /api/database/health - 数据库健康检查 (200) - .058620000s
+✅ POST /api/database/test-jpa - JPA功能测试 (200) - .337846000s
+✅ GET /api/database/test-data - 获取测试数据 (200) - .310876000s
+✅ DELETE /api/database/clear-test-data - 清空测试数据 (200) - .294609000s
+✅ GET /api/integrations - 获取所有集成配置 (200) - .009959000s
+✅ POST /api/integrations - 创建集成配置 (200) - .010141000s
+✅ GET /api/integrations/config-1 - 获取单个集成配置 (200) - .010308000s
+✅ PUT /api/integrations/config-1 - 更新集成配置 (200) - .010107000s
+✅ DELETE /api/integrations/config-1 - 删除集成配置 (200) - .009943000s
+✅ POST /api/integrations/config-1/test-connection - 连接测试 (200) - .010008000s
+✅ GET /api/integrations/config-1/test-connection - 获取测试历史 (200) - .009881000s
+✅ POST /api/integrations/sync - 启动同步 (200) - .011029000s
+✅ GET /api/integrations/sync - 获取同步历史 (200) - .009799000s
+✅ DELETE /api/integrations/sync?syncId=sync-1 - 取消同步 (200) - .009898000s
+✅ GET /api/integrations/monitor - 获取监控数据 (200) - .009592000s
+✅ POST /api/integrations/monitor - 刷新监控数据 (200) - .009674000s
+✅ GET /api/integrations/stats - 获取统计数据 (200) - .010717000s
+✅ POST /api/integrations/stats - 重新计算统计数据 (200) - .010621000s

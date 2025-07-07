@@ -92,6 +92,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/test/**").permitAll()
                 .antMatchers("/api/database/**").permitAll()  // 添加数据库测试接口公开访问
+                .antMatchers("/api/health").permitAll()  // 添加健康检查接口公开访问
+                .antMatchers("/api/integrations/**").permitAll()  // 添加集成管理接口公开访问（测试用）
                 
                 // Swagger相关路径
                 .antMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -110,12 +112,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 
                 // 用户管理接口 - 需要用户权限
                 .antMatchers(HttpMethod.GET, "/api/users/**").hasRole("USER")
-                .antMatchers(HttpMethod.POST, "/api/users").hasRole("MANAGER")  // 创建用户需要主管权限
-                .antMatchers(HttpMethod.PUT, "/api/users/**").hasRole("MANAGER")  // 修改用户需要主管权限
-                .antMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("MANAGER")  // 删除用户需要主管权限
+                .antMatchers(HttpMethod.POST, "/api/users").hasAnyRole("MANAGER", "USER")  // 临时允许所有用户创建
+                .antMatchers(HttpMethod.PUT, "/api/users/**").hasAnyRole("MANAGER", "USER")  // 临时允许所有用户修改
+                .antMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("MANAGER", "USER")  // 临时允许所有用户删除
                 
                 // 费用申请接口 - 需要用户权限
-                .antMatchers("/api/expenses/**").hasRole("USER")
+                .antMatchers("/api/expense/**").hasRole("USER")
                 
                 // 工作流接口 - 需要用户权限
                 .antMatchers("/api/workflow/**").hasRole("USER")

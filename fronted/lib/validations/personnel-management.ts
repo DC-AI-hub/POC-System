@@ -35,9 +35,9 @@ export const personnelFormSchema = z.object({
     .string()
     .min(1, "请选择部门"),
   
-  position: z.enum(["经理", "总监", "专员", "工程师", "主管"], {
-    errorMap: () => ({ message: "请选择职位" })
-  }),
+  position: z
+    .string()
+    .min(1, "请选择职位"),
   
   manager: z
     .string()

@@ -5,6 +5,7 @@ import demo.backed.repository.TestEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/database")
@@ -28,6 +30,9 @@ public class DatabaseTestController {
     
     @Autowired
     private TestEntityRepository testEntityRepository;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     
     @GetMapping("/test-connection")
     @ApiOperation("测试数据库连接")
@@ -532,6 +537,41 @@ public class DatabaseTestController {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    
+    @PostMapping("/fix-admin-user")
+    @ApiOperation("修复admin用户userType")
+    public ResponseEntity<Map<String, Object>> fixAdminUser() {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 使用JdbcTemplate执行SQL
+            String sql = "UPDATE t_poc_users SET user_type = ?, updated_time = ?, updated_by = ? WHERE email = ?";
+            int updatedRows = jdbcTemplate.update(sql, "主管", LocalDateTime.now(), "system", "admin@hkex.com");
+            
+            if (updatedRows > 0) {
+                // 验证修复结果
+                String selectSql = "SELECT id, employee_id, user_name, email, user_type, status FROM t_poc_users WHERE email = ?";
+                Map<String, Object> userData = jdbcTemplate.queryForMap(selectSql, "admin@hkex.com");
+                
+                result.put("status", "SUCCESS");
+                result.put("message", "admin用户userType修复成功");
+                result.put("updatedRows", updatedRows);
+                result.put("userData", userData);
+                
+                return ResponseEntity.ok(result);
+            } else {
+                result.put("status", "FAILED");
+                result.put("message", "未找到admin用户或无需更新");
+                return ResponseEntity.ok(result);
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "FAILED");
+            result.put("message", "修复admin用户失败: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(result);
         }
     }
     
